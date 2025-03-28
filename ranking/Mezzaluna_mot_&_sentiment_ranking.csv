@@ -1,0 +1,25 @@
+Type,MOT,Mentions,Avg_Sentiment
+Importance,Food Quality & Presentation,300,
+Importance,Arrival & First Impressions,288,
+Importance,Service Interaction,217,
+Importance,Word-of-Mouth & Recommendations,168,
+Importance,Ambience & Atmosphere,129,
+Importance,Menu Presentation & Ordering,55,
+Importance,Billing & Payment Process,19,
+Importance,Waiting Time,13,
+Importance,Handling of Dietary Requirements,7,
+Importance,Food & Drink Arrival Time,6,
+Importance,Issue Resolution & Complaint Handling,4,
+Importance,Toilet Cleanliness & Maintenance,2,
+Satisfaction,Issue Resolution & Complaint Handling,,1.75
+Satisfaction,Handling of Dietary Requirements,,2.14
+Satisfaction,Billing & Payment Process,,2.16
+Satisfaction,Toilet Cleanliness & Maintenance,,2.5
+Satisfaction,Food & Drink Arrival Time,,2.67
+Satisfaction,Waiting Time,,2.69
+Satisfaction,Menu Presentation & Ordering,,2.8
+Satisfaction,Ambience & Atmosphere,,2.86
+Satisfaction,Food Quality & Presentation,,2.89
+Satisfaction,Word-of-Mouth & Recommendations,,2.9
+Satisfaction,Arrival & First Impressions,,2.93
+Satisfaction,Service Interaction,,2.94
