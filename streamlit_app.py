@@ -1,52 +1,56 @@
 import streamlit as st
-import pandas as pd
 import os
+from app_pages.quadrant import show_quadrant
+from app_pages.satisfaction import show_satisfaction
+from app_pages.importance import show_importance
+from app_pages.compare import show_comparison
 
-# Set Streamlit page settings
-st.set_page_config(page_title="MoT Rankings Dashboard", layout="wide")
+# Set Streamlit page config
+st.set_page_config(page_title="Restaurant Experience Insight Dashboard", layout="wide")
 
-# Title and description
-st.title("Moments of Truth (MoT) Rankings Dashboard")
-st.markdown("""
-This dashboard shows **Importance (Mentions)** and **Satisfaction (Sentiment)** rankings for each restaurant based on customer reviews.
-Select a restaurant from the dropdown to view their prioritised Moments of Truth.
-""")
+# Sidebar Title
+st.sidebar.title("Restaurant Experience Insight Dashboard")
 
-# Directory where ranking CSVs are saved
+# Load business files
 ranking_dir = "ranking"
+files = [f for f in os.listdir(ranking_dir) if f.endswith(".csv")]
+business_names = [f.replace("_mot_&_sentiment_ranking.csv", "").replace("_", " ").replace("and", "&") for f in files]
 
-# Get all ranking files
-csv_files = [f for f in os.listdir(ranking_dir) if f.endswith(".csv")]
+# Sidebar - Page Selection
+page = st.sidebar.radio("Select a Page", [
+    "📊 MOT Priority Matrix (Scatter Plot)",
+    "📉 MOT Satisfaction (Bar Chart)",
+    "📈 MOT Importance (Bar Chart)",
+    "📡 Compare Businesses (Radar Chart)"
+])
 
-# Create a display-friendly name list
-restaurant_names = [
-    f.replace("_mot_&_sentiment_ranking.csv", "")
-     .replace("_", " ")
-     .replace("and", "&")
-     for f in csv_files
-]
+# Sidebar - Business Selection based on Page
+if page == "📡 Compare Businesses (Radar Chart)":
+    selected_businesses = st.sidebar.multiselect(
+        "Select Businesses (2-3 Required)",
+        business_names,
+        default=business_names[:2]
+    )
 
-# Restaurant selection
-selected_restaurant = st.selectbox("Choose a Restaurant:", restaurant_names)
+    if len(selected_businesses) < 2:
+        st.sidebar.error("Please select at least two businesses to compare.")
+        st.stop()
 
-# Reconstruct filename from selected option
-filename = f"{selected_restaurant.replace(' ', '_').replace('&', 'and')}_mot_&_sentiment_ranking.csv"
-file_path = os.path.join(ranking_dir, filename)
+else:
+    selected_businesses = st.sidebar.selectbox(
+        "Select a Business",
+        business_names
+    )
 
-# Load the CSV
-df = pd.read_csv(file_path)
+# Load the correct page
+if page == "📊 MOT Priority Matrix (Scatter Plot)":
+    show_quadrant(selected_businesses)
 
-# Split DataFrames by Type
-importance_df = df[df["Type"] == "Importance"][["MOT", "Mentions"]].sort_values(by="Mentions", ascending=False).reset_index(drop=True)
-satisfaction_df = df[df["Type"] == "Satisfaction"][["MOT", "Avg_Sentiment"]].sort_values(by="Avg_Sentiment", ascending=True).reset_index(drop=True)
+elif page == "📉 MOT Satisfaction (Bar Chart)":
+    show_satisfaction(selected_businesses)
 
-# Layout in two columns
-col1, col2 = st.columns(2)
+elif page == "📈 MOT Importance (Bar Chart)":
+    show_importance(selected_businesses)
 
-with col1:
-    st.subheader("Importance Ranking (Mentions)")
-    st.dataframe(importance_df, use_container_width=True)
-
-with col2:
-    st.subheader("Satisfaction Ranking (Avg Sentiment)")
-    st.dataframe(satisfaction_df, use_container_width=True)
+elif page == "📡 Compare Businesses (Radar Chart)":
+    show_comparison(selected_businesses)
