@@ -141,7 +141,7 @@ for mot in MOT_CATEGORIES:
 df_filtered_sample.drop(columns=["ChatGPT Analysis"], inplace=True)
 
 # Save the processed data into CSV
-df_filtered_sample.to_csv("mot_&_sentiment_analysis/restaurant_mot_&_sentiment_analysis_final.csv", index=False)
+df_filtered_sample.to_csv("mot_&_sentiment_analysis/restaurant_mot_&_sentiment_analysis.csv", index=False)
 
 # Print completion message
-print("Analysis complete! Results saved as 'restaurant_mot_&_sentiment_analysis_final.csv'.")
+print("Analysis complete! Results saved as 'restaurant_mot_&_sentiment_analysis.csv'.")
