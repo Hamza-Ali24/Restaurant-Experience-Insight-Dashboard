@@ -83,7 +83,7 @@ Use this to spot strengths and weaknesses for each business at a glance.
 """)
 
     # GPT-4 Insight Generator
-    st.subheader("💡 Generate Insight from Selected Data")
+    st.subheader("💡 Generate Insight from Radar Chart")
 
     if st.button("Generate Insight") and client:
         with st.spinner("Analysing radar chart data with GPT-4..."):

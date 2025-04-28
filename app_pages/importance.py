@@ -58,7 +58,7 @@ Use this to prioritise which interactions matter most to your customers.
 """)
 
     # GPT-4 Insight Generator
-    st.subheader("💡 Generate Insight from Data")
+    st.subheader("💡 Generate Insight from Bar Chart")
 
     if st.button("Generate Insight") and client:
         with st.spinner("Analysing importance data with GPT-4..."):

@@ -95,7 +95,7 @@ This helps you quickly identify where satisfaction is strong, neutral, or weak.
 """)
 
     # GPT-4 Insight Generator
-    st.subheader("💡 Generate Insight from Data")
+    st.subheader("💡 Generate Insight from Bar Chart")
 
     if st.button("Generate Insight") and client:
         with st.spinner("Analysing satisfaction data with GPT-4..."):
