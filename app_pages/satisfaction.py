@@ -19,14 +19,14 @@ def show_satisfaction(selected_businesses):
     api_key = os.getenv("OPENAI_API_KEY")
     client = openai.OpenAI(api_key=api_key) if api_key else None
 
-    # Load data
+    # Load ranking data
     file = f"ranking/{selected.replace(' ', '_').replace('&', 'and')}_mot_&_sentiment_ranking.csv"
     df = pd.read_csv(file)
 
-    # Filter satisfaction data
+    # Filter satisfaction data only
     sat = df[df["Type"] == "Satisfaction"].copy().dropna(subset=["Avg_Sentiment"])
 
-    # Sentiment label
+    # Sentiment label assign
     def sentiment_label(score):
         if score == 0.0:
             return "Not Mentioned"
@@ -44,7 +44,7 @@ def show_satisfaction(selected_businesses):
     # Exclude not mentioned
     chart_data = sat[sat["Avg_Sentiment"] > 0.0]
 
-    # Colour map
+    # Define Colour map for sentiments
     colour_map = {
         "Not Mentioned": "#CCCCCC",
         "Negative": "#EF553B",
@@ -52,10 +52,10 @@ def show_satisfaction(selected_businesses):
         "Positive": "#00CC96"
     }
 
-    # Rename for better hover
+    # Rename column for cleaner hover labels
     chart_data = chart_data.rename(columns={"Avg_Sentiment": "Average Sentiment Score"})
 
-    # Bar chart
+    # Create horizontal Bar chart
     fig = px.bar(
         chart_data.sort_values("Average Sentiment Score", ascending=True),
         x="Average Sentiment Score",
@@ -78,10 +78,10 @@ def show_satisfaction(selected_businesses):
         margin=dict(l=20, r=20, t=30, b=20),
         template="plotly"
     )
-
+     # Display bar chart
     st.plotly_chart(fig, use_container_width=True)
 
-    # 🎯 Interpretation
+    # 🎯 Interpretation guide
     with st.expander("🎯 How to Interpret the Satisfaction Chart"):
         st.markdown("""
 This chart shows **average customer sentiment scores** for each **Moment of Truth (MoT)**.
@@ -100,12 +100,13 @@ This helps you quickly identify where satisfaction is strong, neutral, or weak.
     if st.button("Generate Insight") and client:
         with st.spinner("Analysing satisfaction data with GPT-4..."):
             try:
+                # Prepare top and bottom MOTs
                 top = chart_data.sort_values("Average Sentiment Score", ascending=False).head(3)
                 bottom = chart_data.sort_values("Average Sentiment Score", ascending=True).head(3)
 
                 top_mots = "; ".join([f"{row['MOT']} ({row['Average Sentiment Score']:.2f})" for _, row in top.iterrows()])
                 bottom_mots = "; ".join([f"{row['MOT']} ({row['Average Sentiment Score']:.2f})" for _, row in bottom.iterrows()])
-
+                  # Build prompt
                 prompt = (
                     f"For the business '{selected}', the highest-rated Moments of Truth are: {top_mots}.\n"
                     f"The lowest-rated are: {bottom_mots}.\n\n"
@@ -114,7 +115,7 @@ This helps you quickly identify where satisfaction is strong, neutral, or weak.
                     "2. What are customers least satisfied with?\n"
                     "3. Where should the business focus to improve satisfaction?"
                 )
-
+                # Call OpenAI GPT model
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
@@ -122,6 +123,7 @@ This helps you quickly identify where satisfaction is strong, neutral, or weak.
                         {"role": "user", "content": prompt}
                     ]
                 )
+                 # Display GPT-4 mini Insight
                 st.success(response.choices[0].message.content)
 
             except Exception as e:

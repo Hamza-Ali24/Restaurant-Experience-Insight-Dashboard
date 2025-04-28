@@ -18,7 +18,7 @@ def show_comparison(selected_businesses):
     api_key = os.getenv("OPENAI_API_KEY")
     client = openai.OpenAI(api_key=api_key) if api_key else None
 
-    # Load and combine data
+    # Load and combine ranking data
     ranking_dir = "ranking"
     dfs = []
     for business in selected_businesses:
@@ -30,14 +30,14 @@ def show_comparison(selected_businesses):
 
     combined = pd.concat(dfs)
 
-    # Fixed MoT order
+    # Fixed order for MOT on Radar Chart
     MOT_CATEGORIES = [
         "Arrival & First Impressions", "Waiting Time", "Ambience & Atmosphere",
         "Service Interaction", "Menu Presentation & Ordering", "Food & Drink Arrival Time",
         "Food Quality & Presentation", "Handling of Dietary Requirements", "Toilet Cleanliness & Maintenance",
         "Billing & Payment Process", "Issue Resolution & Complaint Handling", "Word-of-Mouth & Recommendations"
     ]
-
+     # Prepare data for plotting
     radar_df = (
         combined.pivot(index="MOT", columns="Business", values="Avg_Sentiment")
         .reindex(MOT_CATEGORIES)
@@ -46,7 +46,7 @@ def show_comparison(selected_businesses):
 
     plot_df = pd.melt(radar_df, id_vars="MOT", var_name="Business", value_name="Avg_Sentiment")
 
-    # Radar chart
+    # Create Radar chart
     fig = px.line_polar(
         plot_df,
         r="Avg_Sentiment",
@@ -68,10 +68,10 @@ def show_comparison(selected_businesses):
         legend_itemclick=False,         # Prevent clicking legend items to toggle visibility
         legend_itemdoubleclick=False    # Prevent isolating a line on double-click
     )
-
+     # Display Radar Chart
     st.plotly_chart(fig, use_container_width=True)
 
-    # 🎯 Interpretation
+    # 🎯 Interpretation guide
     with st.expander("🎯 How to Interpret the Radar Chart"):
         st.markdown("""
 This radar chart shows **customer satisfaction** across key **Moments of Truth (MoTs)** for each selected business.
@@ -88,6 +88,7 @@ Use this to spot strengths and weaknesses for each business at a glance.
     if st.button("Generate Insight") and client:
         with st.spinner("Analysing radar chart data with GPT-4..."):
             try:
+                # Prepare summarised data for GPT
                 gpt_df = (
                     combined.pivot(index="MOT", columns="Business", values="Avg_Sentiment")
                     .reindex(MOT_CATEGORIES)
@@ -98,7 +99,7 @@ Use this to spot strengths and weaknesses for each business at a glance.
                     scores = ", ".join([f"{biz}: {score}" for biz, score in row.items()])
                     mot_lines.append(f"{mot} → {scores}")
                 radar_summary = "\n".join(mot_lines)
-
+                 #Build prompt
                 prompt = (
                     "You are analysing customer satisfaction across multiple businesses based on key Moments of Truth (MoTs).\n\n"
                     f"Here are the average sentiment scores:\n"
@@ -108,7 +109,7 @@ Use this to spot strengths and weaknesses for each business at a glance.
                     "2. What are the major strengths and weaknesses for each business?\n"
                     "3. What strategic improvements would you suggest for each?"
                 )
-
+                  # Call OpenAI GPT model
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
@@ -116,6 +117,7 @@ Use this to spot strengths and weaknesses for each business at a glance.
                         {"role": "user", "content": prompt}
                     ]
                 )
+                 # Display GPT-4 mini Insight
                 st.success(response.choices[0].message.content)
 
             except Exception as e:

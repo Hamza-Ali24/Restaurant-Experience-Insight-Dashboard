@@ -5,7 +5,7 @@ from app_pages.satisfaction import show_satisfaction
 from app_pages.importance import show_importance
 from app_pages.compare import show_comparison
 
-# Set Streamlit page config
+# Set Streamlit page configuration
 st.set_page_config(page_title="Restaurant Experience Insight Dashboard", layout="wide")
 
 # Sidebar Title

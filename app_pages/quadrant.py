@@ -19,11 +19,11 @@ def show_quadrant(selected_businesses):
     api_key = os.getenv("OPENAI_API_KEY")
     client = openai.OpenAI(api_key=api_key) if api_key else None
 
-    # Load business data
+    # Load business ranking data
     file = f"ranking/{selected.replace(' ', '_').replace('&', 'and')}_mot_&_sentiment_ranking.csv"
     df = pd.read_csv(file)
 
-    # Prepare data
+    # Prepare merged importance and satisfaction data
     imp = df[df["Type"] == "Importance"].copy()
     sat = df[df["Type"] == "Satisfaction"].copy()
     merged = pd.merge(imp, sat, on="MOT", suffixes=("_Importance", "_Satisfaction"))
@@ -34,7 +34,7 @@ def show_quadrant(selected_businesses):
     # Quadrant splits
     x_split = merged["Avg_Sentiment"].median()
     y_split = merged["Mentions"].median()
-
+      # Assign Quadrants
     def quadrant_label(row):
         if row["Avg_Sentiment"] < x_split and row["Mentions"] > y_split:
             return "🚨 Fix Now"
@@ -59,7 +59,7 @@ def show_quadrant(selected_businesses):
 
     fig = go.Figure()
 
-    # Shaded quadrants
+    # Shaded background for quadrants
     fig.add_shape(type="rect", x0=x_min, x1=x_split, y0=y_split, y1=y_max,
                   fillcolor="rgba(255, 100, 100, 0.1)", line_width=0, layer="below")
     fig.add_shape(type="rect", x0=x_split, x1=x_max, y0=y_split, y1=y_max,
@@ -69,7 +69,7 @@ def show_quadrant(selected_businesses):
     fig.add_shape(type="rect", x0=x_split, x1=x_max, y0=y_min, y1=y_split,
                   fillcolor="rgba(100, 100, 255, 0.1)", line_width=0, layer="below")
 
-    # Data points
+    # Scatter points per quadrant
     for quadrant, group in merged.groupby("Quadrant"):
         fig.add_trace(go.Scatter(
             x=group["Avg_Sentiment"],
@@ -81,7 +81,7 @@ def show_quadrant(selected_businesses):
             text=group["MOT"]
         ))
 
-    # Median lines
+    # Median split lines
     fig.add_shape(type="line", x0=x_split, x1=x_split, y0=y_min, y1=y_max,
                   line=dict(dash="dash", color="grey"))
     fig.add_shape(type="line", x0=x_min, x1=x_max, y0=y_split, y1=y_split,
@@ -101,10 +101,10 @@ def show_quadrant(selected_businesses):
         height=600,
         template="plotly"
     )
-
+     # Display Quadrant Matrix
     st.plotly_chart(fig, use_container_width=True)
 
-    # 🎯 How to interpret the quadrants
+    # 🎯 Interpretation guide quadrants
     with st.expander("🎯 How to Interpret the Quadrants"):
         st.markdown("""
 **Quadrant 1 (🚨 Fix Now):**  
@@ -143,7 +143,7 @@ Keep these areas stable and monitored.
                         summaries.append(f"**{group}**:\n_No items in this quadrant._\n")
 
                 chart_summary = "\n".join(summaries)
-
+                 # Build GPT prompt
                 prompt = (
                     f"You are analysing customer feedback for the business '{selected}'.\n\n"
                     f"Here is the distribution of Moments of Truth (MoTs) based on Importance and Satisfaction:\n\n"
@@ -151,7 +151,7 @@ Keep these areas stable and monitored.
                     "Please explain what needs urgent attention (🚨), what should be enhanced (🌟), "
                     "what can be deprioritised (🤷), and what should be maintained (👍)."
                 )
-
+                 # Call OpenAI GPT model
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[

@@ -16,6 +16,7 @@ client = openai.OpenAI(api_key=openai_api_key)
 # File paths
 input_csv_path = "dataset/cleaned_reviews.csv"
 jsonl_output_path = "batch_input.jsonl"
+# Define GPT model to be used
 model = "gpt-4o-mini"
 
 # Load cleaned reviews
@@ -68,7 +69,7 @@ batch_inputs = []
 for idx, row in df.iterrows():
     review_text = row["text"]
     prompt = generate_prompt(review_text)
-
+     # Create a request payload per review
     request_payload = {
         "custom_id": f"review-{idx}",
         "method": "POST",
@@ -93,7 +94,7 @@ with open(jsonl_output_path, "w", encoding="utf-8") as outfile:
 
 print(f"JSONL file created at {jsonl_output_path}")
 
-# Upload JSONL file to OpenAI
+# Upload JSONL file to OpenAI for batch processing
 upload_response = client.files.create(
     file=open(jsonl_output_path, "rb"),
     purpose="batch"

@@ -18,7 +18,7 @@ output_csv_path = "mot_&_sentiment_analysis/restaurant_mot_&_sentiment_analysis_
 # Original cleaned csv for merging
 cleaned_reviews_csv_path = "dataset/cleaned_reviews.csv"
 
-#Initialsie Client
+#Initialise OpenAI Client
 client = openai.OpenAI(api_key=openai_api_key)
 
 #Get batch status
@@ -51,7 +51,7 @@ MOT_CATEGORIES = [
     "Food Quality & Presentation", "Handling of Dietary Requirements", "Toilet Cleanliness & Maintenance",
     "Billing & Payment Process", "Issue Resolution & Complaint Handling", "Word-of-Mouth & Recommendations"
 ]
-
+# Define sentiment values
 valid_sentiments = {0, 1, 2, 3}
 
 #Process JSON responses & validate sentiment

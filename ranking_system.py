@@ -41,13 +41,14 @@ for restaurant in target_restaurants:
     sentiment_df = pd.DataFrame(sentiment_data)
     sentiment_df = sentiment_df.sort_values(by="Avg_Sentiment", ascending=True)
 
-    # Combine both tables
+    # Combine Importance and Satisfaction tables
     combined = pd.concat([mot_mentions, sentiment_df], ignore_index=True)
     combined = combined[["Type", "MOT", "Mentions", "Avg_Sentiment"]]
 
     # Save to CSV
     output_filename = f"{restaurant.replace(' ', '_').replace('&', 'and')}_mot_&_sentiment_ranking.csv"
     output_path = os.path.join("ranking", output_filename)
+    # Save the combined rankings to csv
     combined.to_csv(output_path, index=False, float_format="%.2f")
 
     print(f"Rankings saved to: {output_path}")
